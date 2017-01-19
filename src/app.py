@@ -2,17 +2,26 @@ __author__ = 'Timur'
 
 from flask import Flask, request
 from flask_restful import Resource, Api
-#from flask_jwt import
+from flask_jwt import JWT, jwt_required
+
+from src.security import authenticate, identity
 
 #__name__ is unique name of the file that runs app
 app = Flask(__name__)
 app.secret_key = 'timur'
 api = Api(app)
 
+# JWT creates a new end point '/auth'
+# when it reach '/auth', app will send username and password
+# jwt token can be send to next request since it has been
+# authenticated and validated.
+jwt = JWT(app, authenticate, identity)
+
 # internal memory
 items = []
 
 class Item(Resource):
+    @jwt_required  # decorator to authenticate
     def get(self, name):
         #for item in items:
         #    if item['name'] == name:
