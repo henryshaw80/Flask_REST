@@ -21,7 +21,7 @@ jwt = JWT(app, authenticate, identity)
 items = []
 
 class Item(Resource):
-    @jwt_required  # decorator to authenticate
+    @jwt_required()  # decorator with argument to authenticate
     def get(self, name):
         #for item in items:
         #    if item['name'] == name:
