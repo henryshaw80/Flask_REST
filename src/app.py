@@ -43,6 +43,20 @@ class Item(Resource):
         items.append(item)
         return item, 201
 
+    def delete(self, name):
+        global items #identify this variable belongs to outer of this block
+        items = list(filter(lambda x: x['name'] != name, items))
+        return {'message': 'Item deleted'}
+
+    def put(self,name):
+        data = request.get_json()
+        item = next(filter(lambda x: x['name'] == name, items), None)
+        if item is None:
+            item = {'name': name, 'price': data['price']}
+        else:
+            item.update(data)
+        return item
+
 class ItemList(Resource):
     def get(self):
         return{'items': items}
