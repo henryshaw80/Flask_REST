@@ -10,6 +10,8 @@ userid_mapping = {u.id: u for u in users}
 def authenticate(username, password):
     # if there isn't username key, default value is None
     user = username_mapping.get(username, None)
+
+    # safe_str_cmp is comparing two strings
     if user and safe_str_cmp(user.password, password):
         return user
 
