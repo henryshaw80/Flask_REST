@@ -21,6 +21,17 @@ jwt = JWT(app, authenticate, identity)
 items = []
 
 class Item(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        'price',
+        type=float,
+        required=True,
+        help="This field cannot be left blank!"
+    )
+    # only price that can be parsed, any other argument will be ignored
+    # To require a value be passed for an argument, just add required=True
+
     @jwt_required()  # decorator with argument to authenticate
     def get(self, name):
         #for item in items:
@@ -34,11 +45,15 @@ class Item(Resource):
         return {'item': item}, 200 if item is not None else 404
 
     def post(self, name):
+        # deal with errors with filter function
         if next(filter(lambda x: x['name'] == name, items), None) is not None:
             # there is already an item matching the name
             return {'message': "An item with name '{}' already exist".format(name)}, 400
 
-        data = request.get_json()
+        # parse argument that comes through json payload
+        # will put valid data in data
+        data = Item.parser.parse_args()
+
         item = {'name': name, 'price': data['price']}
         items.append(item)
         return item, 201
@@ -49,19 +64,7 @@ class Item(Resource):
         return {'message': 'Item deleted'}
 
     def put(self,name):
-        parser = reqparse.RequestParser()
-        parser.add_argument(
-            'price',
-            type=float,
-            required=True,
-            help="This field cannot be left blank!"
-        )
-        #only price that can be parsed, any other argument will be ignored
-        #To require a value be passed for an argument, just add required=True
-
-        # parse argument that comes through json payload
-        # will put the valid on in data
-        data = parser.parse_args()
+        data = Item.parser.parse_args()
 
         item = next(filter(lambda x: x['name'] == name, items), None)
         if item is None:
