@@ -1,7 +1,7 @@
 __author__ = 'Timur'
 
 from flask import Flask, request
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 
 from src.security import authenticate, identity
@@ -49,11 +49,25 @@ class Item(Resource):
         return {'message': 'Item deleted'}
 
     def put(self,name):
-        data = request.get_json()
+        parser = reqparse.RequestParser()
+        parser.add_argument(
+            'price',
+            type=float,
+            required=True,
+            help="This field cannot be left blank!"
+        )
+        #only price that can be parsed, any other argument will be ignored
+        #To require a value be passed for an argument, just add required=True
+
+        # parse argument that comes through json payload
+        # will put the valid on in data
+        data = parser.parse_args()
+
         item = next(filter(lambda x: x['name'] == name, items), None)
         if item is None:
             item = {'name': name, 'price': data['price']}
         else:
+            # using Flask reqparse to update
             item.update(data)
         return item
 
